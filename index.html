@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workspace | Súper Pizza</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --c-bg:#F7F6F3; --c-surface:#FFFFFF; --c-ink:#0D0D0D;
+            --c-muted:#6B7280; --c-border:#E5E4E0; --c-red:#E63946;
+            --c-red-soft:#FEE9EA; --c-green:#16A34A; --c-green-bg:#DCFCE7;
+            --c-new:#7C3AED; --c-new-bg:#EDE9FE;
+            --c-sidebar:#0D0D0D; --c-sidebar-text:rgba(255,255,255,0.55);
+            --radius-sm:8px; --radius-md:14px;
+            --shadow-card:0 1px 3px rgba(0,0,0,0.06),0 4px 12px rgba(0,0,0,0.04);
+            --shadow-hover:0 8px 30px rgba(0,0,0,0.10);
+            --sidebar-w:260px; --transition:all 0.22s cubic-bezier(0.4,0,0.2,1);
+        }
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        html{font-size:14px;}
+        body{font-family:'Inter',system-ui,sans-serif;background:var(--c-bg);color:var(--c-ink);min-height:100vh;display:flex;}
+
+        aside{width:var(--sidebar-w);background:var(--c-sidebar);display:flex;flex-direction:column;position:fixed;height:100vh;overflow-y:auto;z-index:200;scrollbar-width:none;}
+        aside::-webkit-scrollbar{display:none;}
+        .brand{padding:28px 22px 22px;display:flex;align-items:center;gap:13px;border-bottom:1px solid rgba(255,255,255,0.07);}
+        .brand-logo{width:40px;height:40px;border-radius:10px;background:var(--c-red);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:18px;color:#fff;flex-shrink:0;}
+        .brand-info strong{display:block;font-size:13px;font-weight:800;color:#fff;letter-spacing:0.3px;}
+        .brand-info span{font-size:10.5px;color:var(--c-sidebar-text);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;}
+        .nav{padding:18px 12px;flex:1;}
+        .nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,0.25);padding:16px 10px 6px;}
+        .nav-link{display:flex;align-items:center;gap:11px;padding:9px 10px;margin-bottom:2px;color:var(--c-sidebar-text);text-decoration:none;border-radius:var(--radius-sm);font-size:13px;font-weight:500;transition:var(--transition);cursor:pointer;}
+        .nav-link:hover{background:rgba(255,255,255,0.07);color:#fff;}
+        .nav-link.active{background:rgba(230,57,70,0.18);color:#fff;}
+        .nav-link.active i{color:var(--c-red);}
+        .nav-link i{width:16px;text-align:center;font-size:13px;opacity:0.7;}
+        .nav-link.active i{opacity:1;}
+        .nav-badge{margin-left:auto;font-size:10px;font-weight:700;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);padding:2px 7px;border-radius:20px;min-width:20px;text-align:center;transition:var(--transition);}
+        .nav-link.active .nav-badge{background:var(--c-red);color:#fff;}
+        .sidebar-footer{padding:18px 22px;border-top:1px solid rgba(255,255,255,0.07);}
+        .sidebar-footer p{font-size:10.5px;color:rgba(255,255,255,0.2);line-height:1.5;}
+        .sidebar-footer strong{color:rgba(255,255,255,0.4);}
+
+        main{margin-left:var(--sidebar-w);flex:1;padding:36px 44px;max-width:1300px;width:100%;}
+        .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;gap:20px;}
+        .topbar-left h2{font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;color:var(--c-ink);line-height:1.2;margin-bottom:3px;}
+        .topbar-left p{font-size:13px;color:var(--c-muted);font-weight:500;}
+        .topbar-right{display:flex;align-items:center;gap:12px;}
+        .search-wrap{position:relative;width:280px;}
+        .search-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--c-muted);font-size:13px;pointer-events:none;}
+        .search-input{width:100%;padding:10px 16px 10px 38px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:var(--c-ink);outline:none;transition:var(--transition);}
+        .search-input::placeholder{color:var(--c-muted);}
+        .search-input:focus{border-color:var(--c-ink);box-shadow:0 0 0 3px rgba(13,13,13,0.06);}
+
+        /* CONFIG BANNER */
+        .config-banner{background:#1a1a2e;border:1px solid #e63946;border-radius:var(--radius-md);padding:20px 24px;margin-bottom:24px;display:flex;align-items:flex-start;gap:16px;}
+        .config-banner i{color:#e63946;font-size:20px;margin-top:2px;flex-shrink:0;}
+        .config-banner h4{color:#fff;font-size:14px;font-weight:700;margin-bottom:6px;}
+        .config-banner p{color:rgba(255,255,255,0.6);font-size:12px;line-height:1.6;}
+        .config-banner code{background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;font-family:monospace;color:#e63946;font-size:11px;}
+        .config-banner.hidden{display:none;}
+
+        .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+        .stat-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-md);padding:18px 20px;display:flex;align-items:center;gap:14px;}
+        .stat-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+        .stat-icon.red{background:var(--c-red-soft);color:var(--c-red);}
+        .stat-icon.green{background:var(--c-green-bg);color:var(--c-green);}
+        .stat-icon.purple{background:var(--c-new-bg);color:var(--c-new);}
+        .stat-icon.dark{background:#f0f0ee;color:var(--c-ink);}
+        .stat-text strong{display:block;font-size:22px;font-weight:800;color:var(--c-ink);line-height:1;margin-bottom:3px;}
+        .stat-text span{font-size:11.5px;color:var(--c-muted);font-weight:500;}
+
+        .folder-section{display:none;}
+        .folder-section.active{display:block;}
+        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--c-border);}
+        .section-header-left{display:flex;align-items:center;gap:12px;}
+        .section-icon{width:36px;height:36px;border-radius:var(--radius-sm);background:var(--c-red-soft);color:var(--c-red);display:flex;align-items:center;justify-content:center;font-size:14px;}
+        .section-title{font-size:17px;font-weight:700;color:var(--c-ink);}
+        .section-count{font-size:12px;color:var(--c-muted);font-weight:500;margin-top:1px;}
+        .view-toggle{display:flex;gap:4px;}
+        .view-btn{width:32px;height:32px;border:1px solid var(--c-border);background:var(--c-surface);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--c-muted);cursor:pointer;transition:var(--transition);}
+        .view-btn.active{background:var(--c-ink);color:#fff;border-color:var(--c-ink);}
+
+        .file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;}
+        .file-grid.list-view{grid-template-columns:1fr;gap:8px;}
+
+        .file-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-md);padding:20px;display:flex;flex-direction:column;gap:16px;box-shadow:var(--shadow-card);transition:var(--transition);position:relative;overflow:hidden;}
+        .file-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:transparent;transition:var(--transition);}
+        .file-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover);border-color:#d0cfc9;}
+        .file-card.approved::before{background:var(--c-green);}
+        .file-grid.list-view .file-card{flex-direction:row;align-items:center;padding:14px 20px;gap:16px;}
+        .file-grid.list-view .file-card:hover{transform:translateX(3px) translateY(0);}
+        .file-grid.list-view .file-top{flex:1;min-width:0;}
+        .file-grid.list-view .file-actions{margin-top:0;padding-top:0;border-top:none;flex-shrink:0;}
+
+        .file-top{display:flex;align-items:flex-start;gap:13px;}
+        .file-icon-wrap{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--c-border);}
+        .icon-pdf{background:#FEE2E2;color:#DC2626;}
+        .icon-video{background:#DBEAFE;color:#2563EB;}
+        .icon-image{background:#FCE7F3;color:#DB2777;}
+        .icon-word{background:#DBEAFE;color:#1D4ED8;}
+        .icon-excel{background:#DCFCE7;color:#15803D;}
+        .icon-folder{background:#FEF3C7;color:#D97706;}
+        .icon-file{background:#F3F4F6;color:#6B7280;}
+        .file-info{flex:1;min-width:0;}
+        .file-name{font-size:13px;font-weight:700;color:var(--c-ink);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+        .file-date{font-size:11px;color:var(--c-muted);font-weight:500;}
+        .file-badges{display:flex;gap:5px;flex-wrap:wrap;}
+        .badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;padding:3px 8px;border-radius:20px;}
+        .badge-new{background:var(--c-new-bg);color:var(--c-new);}
+        .badge-approved{background:var(--c-green-bg);color:var(--c-green);}
+        .badge-ext{background:var(--c-bg);color:var(--c-muted);border:1px solid var(--c-border);}
+        .file-actions{display:flex;gap:8px;align-items:center;}
+        .btn-open{display:flex;align-items:center;gap:7px;padding:8px 14px;background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-sm);font-size:12px;font-weight:600;color:var(--c-ink);text-decoration:none;transition:var(--transition);flex:1;justify-content:center;}
+        .btn-open:hover{background:var(--c-ink);color:#fff;border-color:var(--c-ink);}
+        .btn-approve{width:36px;height:36px;border:1px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-bg);color:var(--c-muted);cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+        .btn-approve:hover{background:var(--c-green-bg);color:var(--c-green);border-color:rgba(22,163,74,0.2);}
+        .file-card.approved .btn-approve{background:var(--c-green-bg);color:var(--c-green);border-color:rgba(22,163,74,0.3);}
+        .btn-copy{width:36px;height:36px;border:1px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-bg);color:var(--c-muted);cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+        .btn-copy:hover{background:var(--c-bg);color:var(--c-ink);}
+
+        @keyframes shimmer{0%{background-position:-600px 0;}100%{background-position:600px 0;}}
+        .skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;}
+        .skeleton-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-md);padding:20px;height:170px;}
+        .skeleton-line{border-radius:6px;background:linear-gradient(90deg,#f0eeeb 25%,#e8e6e2 50%,#f0eeeb 75%);background-size:600px 100%;animation:shimmer 1.4s infinite;}
+        .sk-icon{width:42px;height:42px;border-radius:8px;margin-bottom:14px;}
+        .sk-title{height:13px;width:75%;margin-bottom:8px;}
+        .sk-sub{height:11px;width:45%;margin-bottom:20px;}
+        .sk-btn{height:34px;width:100%;border-radius:8px;}
+
+        .empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;}
+        .empty-icon{width:64px;height:64px;border-radius:16px;background:var(--c-bg);border:1px solid var(--c-border);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--c-muted);margin-bottom:16px;}
+        .empty-state h4{font-size:15px;font-weight:700;color:var(--c-ink);margin-bottom:6px;}
+        .empty-state p{font-size:13px;color:var(--c-muted);max-width:280px;line-height:1.5;}
+
+        #toast-container{position:fixed;bottom:28px;right:28px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
+        .toast{display:flex;align-items:center;gap:12px;padding:13px 18px;background:var(--c-ink);color:#fff;border-radius:var(--radius-sm);font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.2);animation:slideIn 0.25s cubic-bezier(0.4,0,0.2,1);max-width:320px;}
+        .toast.success{background:#1a3d26;}
+        .toast i{font-size:14px;flex-shrink:0;}
+        @keyframes slideIn{from{opacity:0;transform:translateY(12px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+        @keyframes slideOut{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(8px);}}
+        .file-card.hidden{display:none;}
+        .no-results{grid-column:1/-1;text-align:center;padding:48px;color:var(--c-muted);font-size:13px;}
+
+        @media(max-width:1100px){main{padding:28px;}  .stats-bar{grid-template-columns:repeat(2,1fr);}}
+        @media(max-width:768px){aside{display:none;} main{margin-left:0;padding:20px;} .topbar{flex-direction:column;align-items:flex-start;} .search-wrap{width:100%;}}
+        @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+    </style>
+</head>
+<body>
+
+<aside>
+    <div class="brand">
+        <div class="brand-logo">SP</div>
+        <div class="brand-info">
+            <strong>Súper Pizza</strong>
+            <span>Portal Corporativo</span>
+        </div>
+    </div>
+    <nav class="nav">
+        <div class="nav-label">Estrategia</div>
+        <a class="nav-link active" onclick="switchTab('cronogramas',this)"><i class="fa-solid fa-calendar-days"></i>Cronogramas<span class="nav-badge" id="badge-cronogramas">—</span></a>
+        <a class="nav-link" onclick="switchTab('campanas',this)"><i class="fa-solid fa-bullhorn"></i>Campañas y Pauta<span class="nav-badge" id="badge-campanas">—</span></a>
+        <a class="nav-link" onclick="switchTab('guiones',this)"><i class="fa-solid fa-clapperboard"></i>Guiones Técnicos<span class="nav-badge" id="badge-guiones">—</span></a>
+        <div class="nav-label">Entregables</div>
+        <a class="nav-link" onclick="switchTab('audiovisual',this)"><i class="fa-solid fa-photo-film"></i>Material Audiovisual<span class="nav-badge" id="badge-audiovisual">—</span></a>
+        <div class="nav-label">Resultados & Marca</div>
+        <a class="nav-link" onclick="switchTab('reportes',this)"><i class="fa-solid fa-chart-line"></i>Reportes y Métricas<span class="nav-badge" id="badge-reportes">—</span></a>
+        <a class="nav-link" onclick="switchTab('brandKit',this)"><i class="fa-solid fa-swatchbook"></i>Brand Kit<span class="nav-badge" id="badge-brandKit">—</span></a>
+    </nav>
+    <div class="sidebar-footer"><p>Gestionado por<br><strong>Kaizen Leap Agency</strong></p></div>
+</aside>
+
+<main>
+    <!-- CONFIG BANNER -->
+    <div class="config-banner" id="config-banner">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>
+            <h4>Configuración requerida</h4>
+            <p>Abre el archivo <code>index.html</code> y reemplaza <code>TU_API_KEY_AQUI</code> con tu Google Drive API Key.<br>
+            Luego asegúrate de que la carpeta de Drive sea pública ("Cualquiera con el enlace puede ver").</p>
+        </div>
+    </div>
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <h2 id="section-title-display">Cronogramas Estratégicos</h2>
+            <p id="section-subtitle-display">Planificación mensual y calendarios de contenido aprobados.</p>
+        </div>
+        <div class="topbar-right">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="search-input" id="search-input" placeholder="Buscar archivos..." oninput="filterFiles()">
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-card"><div class="stat-icon dark"><i class="fa-solid fa-layer-group"></i></div><div class="stat-text"><strong id="stat-total">—</strong><span>Archivos totales</span></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div><div class="stat-text"><strong id="stat-approved">—</strong><span>Aprobados</span></div></div>
+        <div class="stat-card"><div class="stat-icon purple"><i class="fa-solid fa-bolt"></i></div><div class="stat-text"><strong id="stat-new">—</strong><span>Nuevos (7 días)</span></div></div>
+        <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-folder-open"></i></div><div class="stat-text"><strong id="stat-sections">6</strong><span>Secciones activas</span></div></div>
+    </div>
+
+    <!-- SECTIONS -->
+    <section id="sec-cronogramas" class="folder-section active">
+        <div class="section-header">
+            <div class="section-header-left"><div class="section-icon"><i class="fa-solid fa-calendar-days"></i></div><div><div class="section-title">Cronogramas Estratégicos</div><div class="section-count" id="count-cronogramas">Cargando...</div></div></div>
+            <div class="view-toggle"><button class="view-btn active" onclick="setView('cronogramas','grid',this)"><i class="fa-solid fa-grip"></i></button><button class="view-btn" onclick="setView('cronogramas','list',this)"><i class="fa-solid fa-list"></i></button></div>
+        </div>
+        <div class="skeleton-grid" id="skeleton-cronogramas"><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div></div>
+        <div class="file-grid" id="grid-cronogramas" style="display:none"></div>
+    </section>
+
+    <section id="sec-campanas" class="folder-section">
+        <div class="section-header">
+            <div class="section-header-left"><div class="section-icon"><i class="fa-solid fa-bullhorn"></i></div><div><div class="section-title">Campañas de Pauta Digital</div><div class="section-count" id="count-campanas">Cargando...</div></div></div>
+            <div class="view-toggle"><button class="view-btn active" onclick="setView('campanas','grid',this)"><i class="fa-solid fa-grip"></i></button><button class="view-btn" onclick="setView('campanas','list',this)"><i class="fa-solid fa-list"></i></button></div>
+        </div>
+        <div class="skeleton-grid" id="skeleton-campanas"><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div></div>
+        <div class="file-grid" id="grid-campanas" style="display:none"></div>
+    </section>
+
+    <section id="sec-guiones" class="folder-section">
+        <div class="section-header">
+            <div class="section-header-left"><div class="section-icon"><i class="fa-solid fa-clapperboard"></i></div><div><div class="section-title">Guiones de Contenido</div><div class="section-count" id="count-guiones">Cargando...</div></div></div>
+            <div class="view-toggle"><button class="view-btn active" onclick="setView('guiones','grid',this)"><i class="fa-solid fa-grip"></i></button><button class="view-btn" onclick="setView('guiones','list',this)"><i class="fa-solid fa-list"></i></button></div>
+        </div>
+        <div class="skeleton-grid" id="skeleton-guiones"><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div></div>
+        <div class="file-grid" id="grid-guiones" style="display:none"></div>
+    </section>
+
+    <section id="sec-audiovisual" class="folder-section">
+        <div class="section-header">
+            <div class="section-header-left"><div class="section-icon"><i class="fa-solid fa-photo-film"></i></div><div><div class="section-title">Material Audiovisual y Gráfico</div><div class="section-count" id="count-audiovisual">Cargando...</div></div></div>
+            <div class="view-toggle"><button class="view-btn active" onclick="setView('audiovisual','grid',this)"><i class="fa-solid fa-grip"></i></button><button class="view-btn" onclick="setView('audiovisual','list',this)"><i class="fa-solid fa-list"></i></button></div>
+        </div>
+        <div class="skeleton-grid" id="skeleton-audiovisual"><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div></div>
+        <div class="file-grid" id="grid-audiovisual" style="display:none"></div>
+    </section>
+
+    <section id="sec-reportes" class="folder-section">
+        <div class="section-header">
+            <div class="section-header-left"><div class="section-icon"><i class="fa-solid fa-chart-line"></i></div><div><div class="section-title">Reportes Mensuales</div><div class="section-count" id="count-reportes">Cargando...</div></div></div>
+            <div class="view-toggle"><button class="view-btn active" onclick="setView('reportes','grid',this)"><i class="fa-solid fa-grip"></i></button><button class="view-btn" onclick="setView('reportes','list',this)"><i class="fa-solid fa-list"></i></button></div>
+        </div>
+        <div class="skeleton-grid" id="skeleton-reportes"><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div></div>
+        <div class="file-grid" id="grid-reportes" style="display:none"></div>
+    </section>
+
+    <section id="sec-brandKit" class="folder-section">
+        <div class="section-header">
+            <div class="section-header-left"><div class="section-icon"><i class="fa-solid fa-swatchbook"></i></div><div><div class="section-title">Manual de Identidad y Brand Kit</div><div class="section-count" id="count-brandKit">Cargando...</div></div></div>
+            <div class="view-toggle"><button class="view-btn active" onclick="setView('brandKit','grid',this)"><i class="fa-solid fa-grip"></i></button><button class="view-btn" onclick="setView('brandKit','list',this)"><i class="fa-solid fa-list"></i></button></div>
+        </div>
+        <div class="skeleton-grid" id="skeleton-brandKit"><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div><div class="skeleton-card"><div class="skeleton-line sk-icon"></div><div class="skeleton-line sk-title"></div><div class="skeleton-line sk-sub"></div><div class="skeleton-line sk-btn"></div></div></div>
+        <div class="file-grid" id="grid-brandKit" style="display:none"></div>
+    </section>
+</main>
+
+<div id="toast-container"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  CONFIGURACIÓN — reemplaza con tus valores reales
+// ══════════════════════════════════════════════════
+const API_KEY       = 'AIzaSyBj46qNmsr2Z1gjCktXPNopLkViVspfD6w';
+const MAIN_FOLDER   = '1BGswEv54v6LSRqAY2WrpHV8fGPdNkkab';
+
+// Mapeo de carpetas: palabra clave → sección
+const FOLDER_MAP = {
+    cronograma:  'cronogramas',
+    campa:       'campanas',
+    pauta:       'campanas',
+    guion:       'guiones',
+    contenido:   'audiovisual',
+    audiovisual: 'audiovisual',
+    material:    'audiovisual',
+    video:       'audiovisual',
+    reporte:     'reportes',
+    metrica:     'reportes',
+    kit:         'brandKit',
+    brand:       'brandKit',
+    identidad:   'brandKit',
+    logo:        'brandKit',
+};
+
+const SECTION_META = {
+    cronogramas:  { title:'Cronogramas Estratégicos',      sub:'Planificación mensual y calendarios de contenido aprobados.' },
+    campanas:     { title:'Campañas de Pauta Digital',      sub:'Piezas gráficas, públicos y configuraciones de Meta Ads.' },
+    guiones:      { title:'Guiones de Contenido',           sub:'Guiones técnicos y creativos para producción audiovisual.' },
+    audiovisual:  { title:'Material Audiovisual y Gráfico', sub:'Videos, fotografías e imágenes editadas para publicación.' },
+    reportes:     { title:'Reportes y Métricas',            sub:'Informes mensuales de rendimiento y análisis de resultados.' },
+    brandKit:     { title:'Manual de Identidad y Brand Kit',sub:'Logos, paletas, tipografías y guía de uso de marca.' },
+};
+
+const ALL_SECTIONS = ['cronogramas','campanas','guiones','audiovisual','reportes','brandKit'];
+let globalData = { cronogramas:[],campanas:[],guiones:[],audiovisual:[],reportes:[],brandKit:[] };
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    if (API_KEY === 'TU_API_KEY_AQUI') {
+        // Sin API key — muestra banner y carga demo
+        document.getElementById('config-banner').classList.remove('hidden');
+        setTimeout(() => loadDemo(), 800);
+        return;
+    }
+    document.getElementById('config-banner').classList.add('hidden');
+    loadFromDrive();
+});
+
+// ══════════════════════════════════════════════════
+//  DRIVE API
+// ══════════════════════════════════════════════════
+async function loadFromDrive() {
+    try {
+        // 1. Obtener subcarpetas de la carpeta principal
+        const foldersUrl = `https://www.googleapis.com/drive/v3/files?q='${MAIN_FOLDER}'+in+parents+and+mimeType='application/vnd.google-apps.folder'+and+trashed=false&fields=files(id,name)&key=${API_KEY}`;
+        const foldersRes = await fetch(foldersUrl);
+        const foldersData = await foldersRes.json();
+
+        if (!foldersData.files) {
+            showToast('error','Error al leer Drive. Verifica la API Key y permisos de la carpeta.');
+            ALL_SECTIONS.forEach(k => hideSkeleton(k));
+            return;
+        }
+
+        // 2. Para cada subcarpeta, obtener sus archivos
+        const promises = foldersData.files.map(async folder => {
+            const filesUrl = `https://www.googleapis.com/drive/v3/files?q='${folder.id}'+in+parents+and+trashed=false&fields=files(id,name,webViewLink,modifiedTime,mimeType)&orderBy=modifiedTime+desc&key=${API_KEY}`;
+            const filesRes = await fetch(filesUrl);
+            const filesData = await filesRes.json();
+            return { folder: folder.name, files: filesData.files || [] };
+        });
+
+        const results = await Promise.all(promises);
+
+        // 3. Clasificar en secciones
+        results.forEach(({ folder, files }) => {
+            const fn = folder.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+            let section = null;
+            for (const [key, val] of Object.entries(FOLDER_MAP)) {
+                if (fn.includes(key)) { section = val; break; }
+            }
+            if (!section) return;
+
+            const mapped = files.map(f => {
+                const name = f.name;
+                const ext  = name.includes('.') ? name.split('.').pop().toLowerCase() : 'folder';
+                const ts   = new Date(f.modifiedTime).getTime();
+                return {
+                    id: f.id,
+                    name: name,
+                    url: f.webViewLink,
+                    timestamp: ts,
+                    dateStr: new Date(ts).toLocaleDateString('es-CO', { day:'2-digit', month:'2-digit', year:'numeric' }),
+                    ext: ext
+                };
+            });
+
+            globalData[section] = [...(globalData[section] || []), ...mapped];
+        });
+
+        renderAll();
+
+    } catch(e) {
+        showToast('error', 'Error de conexión con Drive: ' + e.message);
+        ALL_SECTIONS.forEach(k => hideSkeleton(k));
+    }
+}
+
+// ══════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════
+function renderAll() {
+    let totalFiles = 0, totalApproved = 0, totalNew = 0;
+    const now = Date.now();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+    ALL_SECTIONS.forEach(key => {
+        const files = globalData[key] || [];
+        totalFiles += files.length;
+        files.forEach(f => {
+            if (localStorage.getItem('approved_' + f.id) === 'true') totalApproved++;
+            if ((now - f.timestamp) < sevenDays) totalNew++;
+        });
+        document.getElementById('badge-' + key).textContent = files.length || '0';
+        fillGrid(key, files);
+        hideSkeleton(key);
+    });
+
+    animateNumber('stat-total',    totalFiles);
+    animateNumber('stat-approved', totalApproved);
+    animateNumber('stat-new',      totalNew);
+}
+
+function hideSkeleton(key) {
+    const sk = document.getElementById('skeleton-' + key);
+    const gr = document.getElementById('grid-' + key);
+    if (sk) sk.style.display = 'none';
+    if (gr) gr.style.display = 'grid';
+}
+
+function fillGrid(key, files) {
+    const grid  = document.getElementById('grid-' + key);
+    const count = document.getElementById('count-' + key);
+    if (!files || files.length === 0) {
+        grid.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-folder-open"></i></div><h4>Sin archivos todavía</h4><p>Sube archivos a esta carpeta en Google Drive y aparecerán aquí automáticamente.</p></div>`;
+        if (count) count.textContent = '0 archivos';
+        return;
+    }
+    if (count) count.textContent = files.length + ' archivo' + (files.length !== 1 ? 's' : '');
+    grid.innerHTML = files.map(buildCard).join('');
+}
+
+function buildCard(file) {
+    const now = Date.now();
+    const isNew      = (now - file.timestamp) < 7 * 24 * 60 * 60 * 1000;
+    const isApproved = localStorage.getItem('approved_' + file.id) === 'true';
+    const iconClass  = getIconClass(file.ext);
+    const iconFA     = getIconFA(file.ext);
+    const badges = [
+        isNew      ? `<span class="badge badge-new"><i class="fa-solid fa-bolt"></i> Nuevo</span>` : '',
+        isApproved ? `<span class="badge badge-approved"><i class="fa-solid fa-check"></i> Aprobado</span>` : '',
+        file.ext && file.ext !== 'folder' ? `<span class="badge badge-ext">${file.ext.toUpperCase()}</span>` : '',
+    ].filter(Boolean).join('');
+
+    return `
+        <div class="file-card ${isApproved ? 'approved' : ''}" id="card-${file.id}" data-name="${file.name.toLowerCase()}">
+            <div class="file-top">
+                <div class="file-icon-wrap ${iconClass}"><i class="fa-solid ${iconFA}"></i></div>
+                <div class="file-info">
+                    <div class="file-name" title="${file.name}">${file.name}</div>
+                    <div class="file-date"><i class="fa-regular fa-clock" style="margin-right:4px;opacity:.5"></i>${file.dateStr}</div>
+                </div>
+            </div>
+            ${badges ? `<div class="file-badges">${badges}</div>` : ''}
+            <div class="file-actions">
+                <a href="${file.url}" target="_blank" class="btn-open"><i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir</a>
+                <button class="btn-approve" id="approve-${file.id}" onclick="toggleApproval('${file.id}')" title="${isApproved ? 'Aprobado' : 'Marcar como aprobado'}"><i class="fa-solid fa-check"></i></button>
+                <button class="btn-copy" onclick="copyLink('${file.url}')" title="Copiar enlace"><i class="fa-solid fa-link"></i></button>
+            </div>
+        </div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════
+function getIconClass(ext) {
+    const m = { pdf:'icon-pdf', mp4:'icon-video', mov:'icon-video', avi:'icon-video', png:'icon-image', jpg:'icon-image', jpeg:'icon-image', webp:'icon-image', gif:'icon-image', doc:'icon-word', docx:'icon-word', xls:'icon-excel', xlsx:'icon-excel', folder:'icon-folder' };
+    return m[(ext||'').toLowerCase()] || 'icon-file';
+}
+function getIconFA(ext) {
+    const m = { pdf:'fa-file-pdf', mp4:'fa-video', mov:'fa-video', avi:'fa-video', png:'fa-image', jpg:'fa-image', jpeg:'fa-image', webp:'fa-image', gif:'fa-image', doc:'fa-file-word', docx:'fa-file-word', xls:'fa-file-excel', xlsx:'fa-file-excel', folder:'fa-folder' };
+    return m[(ext||'').toLowerCase()] || 'fa-file-lines';
+}
+
+function toggleApproval(fileId) {
+    const card = document.getElementById('card-' + fileId);
+    const wasApproved = card.classList.contains('approved');
+    if (wasApproved) {
+        localStorage.removeItem('approved_' + fileId);
+        card.classList.remove('approved');
+        showToast('info', 'Aprobación retirada.');
+    } else {
+        localStorage.setItem('approved_' + fileId, 'true');
+        card.classList.add('approved');
+        showToast('success', '¡Archivo aprobado!');
+    }
+    let total = 0;
+    ALL_SECTIONS.forEach(k => { (globalData[k]||[]).forEach(f => { if (localStorage.getItem('approved_'+f.id)==='true') total++; }); });
+    animateNumber('stat-approved', total);
+}
+
+function copyLink(url) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => showToast('success','Enlace copiado.'));
+    }
+}
+
+function filterFiles() {
+    const q = document.getElementById('search-input').value.toLowerCase().trim();
+    document.querySelectorAll('.file-card').forEach(card => {
+        card.classList.toggle('hidden', !card.getAttribute('data-name').includes(q));
+    });
+    document.querySelectorAll('.file-grid').forEach(grid => {
+        const existing = grid.querySelector('.no-results');
+        const hasVisible = [...grid.querySelectorAll('.file-card')].some(c => !c.classList.contains('hidden'));
+        if (!hasVisible && q) {
+            if (!existing) { const el = document.createElement('p'); el.className='no-results'; el.textContent='Sin resultados para "'+q+'"'; grid.appendChild(el); }
+        } else { if (existing) existing.remove(); }
+    });
+}
+
+function setView(key, mode, btn) {
+    document.getElementById('grid-'+key).classList.toggle('list-view', mode==='list');
+    btn.closest('.view-toggle').querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function switchTab(key, el) {
+    event.preventDefault();
+    document.querySelectorAll('.folder-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('sec-'+key).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('section-title-display').textContent   = SECTION_META[key].title;
+    document.getElementById('section-subtitle-display').textContent = SECTION_META[key].sub;
+    document.getElementById('search-input').value = '';
+    document.querySelectorAll('.file-card').forEach(c => c.classList.remove('hidden'));
+    document.querySelectorAll('.no-results').forEach(e => e.remove());
+    window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function showToast(type, msg) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
+    toast.className = 'toast ' + (type==='success' ? 'success' : '');
+    toast.innerHTML = `<i class="fa-solid ${icons[type]||'fa-circle-info'}"></i>${msg}`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.animation='slideOut 0.25s ease forwards'; setTimeout(()=>toast.remove(),250); }, 3200);
+}
+
+function animateNumber(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let start = 0;
+    const step = Math.max(1, Math.ceil(target/20));
+    const timer = setInterval(() => { start = Math.min(start+step, target); el.textContent = start; if (start>=target) clearInterval(timer); }, 40);
+}
+
+// Demo data para preview sin API Key
+function loadDemo() {
+    const now = Date.now(), day = 86400000;
+    globalData = {
+        cronogramas: [
+            { id:'c1', name:'Cronograma Junio 2026.xlsx', url:'#', timestamp:now-day, dateStr:'14/06/2026', ext:'xlsx' },
+            { id:'c2', name:'Calendario Editorial Mayo.pdf', url:'#', timestamp:now-10*day, dateStr:'05/06/2026', ext:'pdf' },
+        ],
+        campanas: [
+            { id:'p1', name:'Campaña Lanzamiento Sede Centro.pdf', url:'#', timestamp:now-2*day, dateStr:'13/06/2026', ext:'pdf' },
+            { id:'p2', name:'Brief Audiencias Meta Ads.docx', url:'#', timestamp:now-15*day, dateStr:'01/06/2026', ext:'docx' },
+        ],
+        guiones: [
+            { id:'g1', name:'Guión Atrápame si Puedes #12.docx', url:'#', timestamp:now-day, dateStr:'14/06/2026', ext:'docx' },
+        ],
+        audiovisual: [
+            { id:'a1', name:'Reel Sede Mosquera - Junio.mp4', url:'#', timestamp:now-day, dateStr:'14/06/2026', ext:'mp4' },
+            { id:'a2', name:'Foto Pack Pizza Especial.jpg', url:'#', timestamp:now-4*day, dateStr:'11/06/2026', ext:'jpg' },
+            { id:'a3', name:'Story Promoción 2x1.png', url:'#', timestamp:now-6*day, dateStr:'09/06/2026', ext:'png' },
+        ],
+        reportes: [
+            { id:'r1', name:'Reporte Mayo 2026.pdf', url:'#', timestamp:now-8*day, dateStr:'07/06/2026', ext:'pdf' },
+        ],
+        brandKit: [
+            { id:'b1', name:'Logo Súper Pizza - Variantes.png', url:'#', timestamp:now-30*day, dateStr:'16/05/2026', ext:'png' },
+            { id:'b2', name:'Manual de Identidad Visual.pdf', url:'#', timestamp:now-30*day, dateStr:'16/05/2026', ext:'pdf' },
+        ],
+    };
+    renderAll();
+}
+</script>
+</body>
+</html>
